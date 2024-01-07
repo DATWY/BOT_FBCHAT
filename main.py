@@ -3,8 +3,9 @@ from telegram import Bot
 import time
 i = 0
 app = Flask(__name__)
-while True:
+while i<100:
     i+=1
+    new()
     time.sleep(1)
 @app.route('/')
 def home():
@@ -16,6 +17,7 @@ def home():
     bot.send_message(chat_id=target_chat_id, text=greeting_message)
     
     return i
-
+def new():
+    return yes + i
 if __name__ == '__main__':
     app.run(debug=True)
