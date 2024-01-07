@@ -1,42 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Thêm script sau vào đầu tệp HTML -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-
-<script>
-    const socket = io.connect('http://' + document.domain + ':' + location.port);
-
-    const messageContainer = document.getElementById('message-container');
-    const messageInput = document.getElementById('message-input');
-
-    const userId = generateUserId();
-
-    window.onload = function () {
-        loadMessages();
-        socket.on('load_messages', function (data) {
-            const savedMessages = data.messages;
-            messageContainer.innerHTML = savedMessages.map(msg => `<div><strong>${msg.userId}:</strong> ${msg.message}</div>`).join('');
-        });
-    }
-
-    function sendMessage() {
-        const message = messageInput.value;
-
-        if (message.trim() !== '') {
-            messageContainer.innerHTML += `<div><strong>${userId}:</strong> ${message}</div>`;
-            messageInput.value = '';
-
-            const data = { userId, message };
-            socket.emit('message', data);
-        }
-    }
-
-    function loadMessages() {
-        socket.emit('get_messages');
-    }
-</script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Online Chat</title>
@@ -46,25 +10,23 @@
             margin: 0 auto;
         }
     </style>
-</head>
-<body>
 
-    <div id="chat-container">
-        <div id="message-container"></div>
-        <input type="text" id="message-input" placeholder="Type your message...">
-        <button onclick="sendMessage()">Send</button>
-    </div>
-
+    <!-- Thêm script sau vào đầu tệp HTML -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script>
+        const socket = io.connect('http://' + document.domain + ':' + location.port);
+
         const messageContainer = document.getElementById('message-container');
         const messageInput = document.getElementById('message-input');
 
         const userId = generateUserId();
 
-        window.onload = loadMessages;
-
-        function generateUserId() {
-            return 'user' + Math.floor(Math.random() * 1000);
+        window.onload = function () {
+            loadMessages();
+            socket.on('load_messages', function (data) {
+                const savedMessages = data.messages;
+                messageContainer.innerHTML = savedMessages.map(msg => `<div><strong>${msg.userId}:</strong> ${msg.message}</div>`).join('');
+            });
         }
 
         function sendMessage() {
@@ -74,41 +36,23 @@
                 messageContainer.innerHTML += `<div><strong>${userId}:</strong> ${message}</div>`;
                 messageInput.value = '';
 
-                saveMessageOnServer(message, userId);
+                const data = { userId, message };
+                socket.emit('message', data);
             }
         }
 
-        function saveMessageOnServer(message, userId) {
-            fetch('/save-message', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ userId, message }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (!data.success) {
-                    console.error('Error saving message on the server:', data.error);
-                }
-            })
-            .catch(error => console.error('Error:', error));
-        }
-
         function loadMessages() {
-            fetch('/get-messages')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const savedMessages = data.messages;
-                    messageContainer.innerHTML = savedMessages.map(msg => `<div><strong>${msg.userId}:</strong> ${msg.message}</div>`).join('');
-                } else {
-                    console.error('Error loading messages from the server:', data.error);
-                }
-            })
-            .catch(error => console.error('Error:', error));
+            socket.emit('get_messages');
         }
     </script>
+</head>
+<body>
+
+    <div id="chat-container">
+        <div id="message-container"></div>
+        <input type="text" id="message-input" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 
 </body>
 </html>
