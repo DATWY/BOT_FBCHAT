@@ -16,7 +16,7 @@ def home():
     greeting_message = 'Hello, welcome to my Flask app!'
     bot.send_message(chat_id=target_chat_id, text=greeting_message)
     
-    return render_template('index.html', status='Message sent successfully')
+    return "đã gửi"
 
 if __name__ == '__main__':
     app.run(debug=True)
