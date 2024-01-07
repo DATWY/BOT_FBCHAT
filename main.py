@@ -1,12 +1,11 @@
 from flask import Flask, render_template
 from telegram import Bot
-
+import time
+i = 0
 app = Flask(__name__)
-
-# Replace 'YOUR_BOT_TOKEN' with your actual bot token
-BOT_TOKEN = '6856621284:AAEBfMFjcy0iX8gMTVA-y935dhW548_3BaI'
-bot = Bot(token=BOT_TOKEN)
-
+while True:
+    i+=1
+    time.sleep(1)
 @app.route('/')
 def home():
     # Replace 'TARGET_CHAT_ID' with the chat ID you want to send the greeting message to
@@ -16,7 +15,7 @@ def home():
     greeting_message = 'Hello, welcome to my Flask app!'
     bot.send_message(chat_id=target_chat_id, text=greeting_message)
     
-    return "đã gửi"
+    return i
 
 if __name__ == '__main__':
     app.run(debug=True)
