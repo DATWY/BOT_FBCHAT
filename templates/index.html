@@ -3,56 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Online Chat</title>
-    <style>
-        #chat-container {
-            max-width: 400px;
-            margin: 0 auto;
-        }
-    </style>
-
-    <!-- Thêm script sau vào đầu tệp HTML -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <script>
-        const socket = io.connect('http://' + document.domain + ':' + location.port);
-
-        const messageContainer = document.getElementById('message-container');
-        const messageInput = document.getElementById('message-input');
-
-        const userId = generateUserId();
-
-        window.onload = function () {
-            loadMessages();
-            socket.on('load_messages', function (data) {
-                const savedMessages = data.messages;
-                messageContainer.innerHTML = savedMessages.map(msg => `<div><strong>${msg.userId}:</strong> ${msg.message}</div>`).join('');
-            });
-        }
-
-        function sendMessage() {
-            const message = messageInput.value;
-
-            if (message.trim() !== '') {
-                messageContainer.innerHTML += `<div><strong>${userId}:</strong> ${message}</div>`;
-                messageInput.value = '';
-
-                const data = { userId, message };
-                socket.emit('message', data);
-            }
-        }
-
-        function loadMessages() {
-            socket.emit('get_messages');
-        }
-    </script>
+    <title>Send FB Message</title>
 </head>
 <body>
+    <h1>Send FB Message</h1>
+    <form method="post" action="/">
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" required><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+        
+        <label for="user_id">User ID:</label>
+        <input type="text" id="user_id" name="user_id" required><br>
+        
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="4" required></textarea><br>
+        
+        <input type="submit" value="Send Message">
+    </form>
 
-    <div id="chat-container">
-        <div id="message-container"></div>
-        <input type="text" id="message-input" placeholder="Type your message...">
-        <button onclick="sendMessage()">Send</button>
-    </div>
-
+    {% if sent %}
+        <p>{{ sent }}</p>
+    {% endif %}
 </body>
 </html>
