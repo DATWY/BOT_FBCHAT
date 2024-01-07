@@ -1,6 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Thêm script sau vào đầu tệp HTML -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+
+<script>
+    const socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    const messageContainer = document.getElementById('message-container');
+    const messageInput = document.getElementById('message-input');
+
+    const userId = generateUserId();
+
+    window.onload = function () {
+        loadMessages();
+        socket.on('load_messages', function (data) {
+            const savedMessages = data.messages;
+            messageContainer.innerHTML = savedMessages.map(msg => `<div><strong>${msg.userId}:</strong> ${msg.message}</div>`).join('');
+        });
+    }
+
+    function sendMessage() {
+        const message = messageInput.value;
+
+        if (message.trim() !== '') {
+            messageContainer.innerHTML += `<div><strong>${userId}:</strong> ${message}</div>`;
+            messageInput.value = '';
+
+            const data = { userId, message };
+            socket.emit('message', data);
+        }
+    }
+
+    function loadMessages() {
+        socket.emit('get_messages');
+    }
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Online Chat</title>
