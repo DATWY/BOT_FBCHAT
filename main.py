@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
-from fbchat import Client, Message
+from fbchatv1 import *
+from fbchatv1 import Client, Message
 
 app = Flask(__name__)
 
