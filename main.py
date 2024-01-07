@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 messages = []
 
@@ -8,15 +10,14 @@ messages = []
 def index():
     return render_template('index.html')
 
-@app.route('/save-message', methods=['POST'])
-def save_message():
-    data = request.get_json()
+@socketio.on('message')
+def handle_message(data):
     messages.append(data)
-    return jsonify(success=True)
+    socketio.emit('new_message', {'userId': data['userId'], 'message': data['message']}, broadcast=True)
 
-@app.route('/get-messages')
+@socketio.on('get_messages')
 def get_messages():
-    return jsonify(success=True, messages=messages)
+    socketio.emit('load_messages', {'messages': messages})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True)
