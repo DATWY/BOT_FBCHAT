@@ -1,23 +1,38 @@
-from flask import Flask, render_template
-from flask_socketio import SocketIO
+from flask import Flask, render_template, request, jsonify
+from fbchat import Client, Message
 
 app = Flask(__name__)
-socketio = SocketIO(app)
 
-messages = []
+def send_fb_message(email, password, user_id, message):
+    try:
+        # Tạo một đối tượng Client của fbchat
+        client = Client(email, password)
 
-@app.route('/')
+        # Lấy thông tin người dùng để gửi tin nhắn
+        user = client.searchForUsers(user_id)[0]
+
+        # Gửi tin nhắn
+        sent = client.send(Message(text=message), thread_id=user.uid, thread_type=user.type)
+
+        # Đóng kết nối sau khi gửi tin nhắn
+        client.logout()
+
+        return sent
+    except Exception as e:
+        return str(e)
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user_id = request.form.get('user_id')
+        message = request.form.get('message')
 
-@socketio.on('message')
-def handle_message(data):
-    messages.append(data)
-    socketio.emit('new_message', {'userId': data['userId'], 'message': data['message']}, broadcast=True)
+        sent = send_fb_message(email, password, user_id, message)
+        return render_template('index.html', sent=sent)
 
-@socketio.on('get_messages')
-def get_messages():
-    socketio.emit('load_messages', {'messages': messages})
+    return render_template('index.html', sent=None)
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    app.run(debug=True)
