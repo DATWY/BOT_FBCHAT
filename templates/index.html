@@ -1,1 +1,89 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Online Chat</title>
+    <style>
+        #chat-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="chat-container">
+        <div id="message-container"></div>
+        <input type="text" id="message-input" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        const messageContainer = document.getElementById('message-container');
+        const messageInput = document.getElementById('message-input');
+
+        // Load user information from Local Storage when the page loads
+        const userId = localStorage.getItem('userId') || generateUserId();
+
+        // Load messages from Local Storage when the page loads
+        window.onload = loadMessages;
+
+        function generateUserId() {
+            // Generate a random user ID (you can customize this logic based on your requirements)
+            return 'user' + Math.floor(Math.random() * 1000);
+        }
+
+        function sendMessage() {
+            const message = messageInput.value;
+
+            if (message.trim() !== '') {
+                // Display the sent message in the chat container
+                messageContainer.innerHTML += `<div><strong>${userId}:</strong> ${message}</div>`;
+                messageInput.value = ''; // Clear the input field
+
+                // Save message to Local Storage and send it to Telegram API
+                saveMessageLocally(message);
+                sendMessageToTelegram(message, userId);
+            }
+        }
+
+        function saveMessageLocally(message) {
+            // Get existing messages from Local Storage
+            const existingMessages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+
+            // Add the new message to the array
+            existingMessages.push({ userId, message });
+
+            // Save the updated messages back to Local Storage
+            localStorage.setItem('chatMessages', JSON.stringify(existingMessages));
+        }
+
+        function loadMessages() {
+            // Load messages from Local Storage
+            const savedMessages = JSON.parse(localStorage.getItem('chatMessages')) || [];
+
+            // Display the saved messages in the chat container
+            messageContainer.innerHTML = savedMessages.map(msg => `<div><strong>${msg.userId}:</strong> ${msg.message}</div>`).join('');
+        }
+
+        function sendMessageToTelegram(message, userId) {
+            // Replace 'YOUR_BOT_TOKEN' and 'YOUR_CHAT_ID' with your actual Telegram bot token and chat ID
+            const botToken = '6856621284:AAEBfMFjcy0iX8gMTVA-y935dhW548_3BaI';
+            const chatId = '-4097464886';
+
+            // Send message to Telegram bot (this is a simplified example)
+            fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(`${userId}: ${message}`)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.ok) {
+                        console.error('Error sending message to Telegram:', data.description);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+
+</body>
+</html>
